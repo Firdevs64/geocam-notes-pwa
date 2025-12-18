@@ -1,3 +1,14 @@
+try {
+  localStorage.setItem("__test__", "1");
+  const v = localStorage.getItem("__test__");
+  localStorage.removeItem("__test__");
+  if (v !== "1") throw new Error("readback failed");
+  console.log("localStorage OK");
+} catch (e) {
+  alert("Depolama çalışmıyor! (PWA/izin/ortam) Hata: " + (e?.message || e));
+}
+
+
 const netBadge = document.getElementById("netBadge");
 function updateNet() {
   const online = navigator.onLine;
@@ -427,3 +438,4 @@ if ("serviceWorker" in navigator) {
     catch (e) { console.warn("SW register failed", e); }
   });
 }
+
