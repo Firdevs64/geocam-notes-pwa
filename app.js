@@ -42,7 +42,8 @@ function HomeView() {
 
           <p>${escapeHtml(n.text || "")}</p>
 
-          ${n.imageDataUrl ? `<img alt="foto" src="${n.imageDataUrl}" class="noteImg" />` : ""}
+          ${n.imageDataUrl ? `<img alt="photo" src="${n.imageDataUrl}" class="noteImg" data-full="${n.imageDataUrl}" />` : ""}
+
 
           ${n.location ? `<p class="muted">📍 ${n.location.lat.toFixed(5)}, ${n.location.lng.toFixed(5)}</p>` : "<p class='muted'>📍 No location</p>"}
         </div>
@@ -58,7 +59,7 @@ function CaptureView() {
       <p>Native features: Camera (photo), Location (GPS), Microphone (speech-to-text).</p>
 
       <label>Photo (can open camera)</label>
-      <input id="photo" type="file" accept="image/*" capture="environment" />
+      <input id="photo" type="file" accept="image/*"/>
 
       <label style="margin-top:10px;display:block">Note</label>
       <textarea id="noteText" rows="4" placeholder="What are we saving today?"></textarea>
@@ -121,10 +122,6 @@ let tempLocation = null;
 let tempImageDataUrl = null;
 
 function bindEvents() {
-
-      const quickAdd = document.getElementById("quickAdd");
-  if (quickAdd) quickAdd.onclick = () => location.hash = "#/capture";
-
   const goCapture = document.getElementById("goCapture");
   if (goCapture) goCapture.onclick = () => location.hash = "#/capture";
 
@@ -180,6 +177,13 @@ function bindEvents() {
       out.textContent = "Location could not be obtained.";
     }
   };
+  // Open image in modal (Home)
+document.querySelectorAll("img[data-full]").forEach(img => {
+  img.addEventListener("click", () => {
+    openImageModal(img.getAttribute("data-full"));
+  });
+});
+
 
     // Speech-to-text (Microphone) 
   const micBtn = document.getElementById("micBtn");
@@ -285,6 +289,124 @@ function getLocation() {
     );
   });
 }
+
+let zoom = 1;
+
+function openImageModal(src) {
+  const modal = document.getElementById("imgModal");
+  const pic = document.getElementById("imgModalPic");
+  const zin = document.getElementById("zoomIn");
+  const zout = document.getElementById("zoomOut");
+  const close = document.getElementById("closeImg");
+
+  zoom = 1;
+  panX = 0;
+  panY = 0;
+  pic.style.transform = `scale(${zoom})`;
+  pic.src = src;
+
+  modal.classList.add("open");
+  modal.setAttribute("aria-hidden", "false");
+
+  const applyZoom = () => {
+    zoom = Math.max(1, Math.min(4, zoom));
+    pic.style.transform = `scale(${zoom})`;
+  };
+
+  zin.onclick = (e) => { e.stopPropagation(); zoom += 0.25; applyZoom(); };
+  zout.onclick = (e) => { e.stopPropagation(); zoom -= 0.25; applyZoom(); };
+  close.onclick = (e) => { e.stopPropagation(); closeImageModal(); };
+
+
+  modal.onclick = () => closeImageModal();
+  pic.onclick = (e) => e.stopPropagation(); 
+}
+
+let panX = 0, panY = 0, scale = 1;
+let startX = 0, startY = 0;
+let startPanX = 0, startPanY = 0;
+let startDist = 0, startScale = 1;
+let isPanning = false;
+
+function applyTransform(img) {
+  img.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
+}
+
+function dist(t1, t2) {
+  const dx = t1.clientX - t2.clientX;
+  const dy = t1.clientY - t2.clientY;
+  return Math.hypot(dx, dy);
+}
+
+function clampScale(v) {
+  return Math.max(1, Math.min(4, v)); 
+}
+
+function enableTouchZoom() {
+  const modal = document.getElementById("imgModal");
+  const img = document.getElementById("imgModalPic");
+  if (!modal || !img) return;
+
+  function reset() {
+    panX = 0; panY = 0; scale = 1;
+    applyTransform(img);
+  }
+
+  img.addEventListener("touchstart", (e) => {
+    if (e.touches.length === 1) {
+      isPanning = true;
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+      startPanX = panX;
+      startPanY = panY;
+    } else if (e.touches.length === 2) {
+      isPanning = false;
+      startDist = dist(e.touches[0], e.touches[1]);
+      startScale = scale;
+    }
+  }, { passive: false });
+
+  img.addEventListener("touchmove", (e) => {
+    e.preventDefault();
+
+    if (e.touches.length === 1 && isPanning && scale > 1) {
+      const dx = e.touches[0].clientX - startX;
+      const dy = e.touches[0].clientY - startY;
+      panX = startPanX + dx;
+      panY = startPanY + dy;
+      applyTransform(img);
+    } else if (e.touches.length === 2) {
+      const newDist = dist(e.touches[0], e.touches[1]);
+      const factor = newDist / startDist;
+      scale = clampScale(startScale * factor);
+      applyTransform(img);
+    }
+  }, { passive: false });
+
+  img.addEventListener("touchend", () => {
+    isPanning = false;
+    if (scale === 1) { panX = 0; panY = 0; applyTransform(img); }
+  });
+
+  let lastTap = 0;
+  img.addEventListener("click", () => {
+    const now = Date.now();
+    if (now - lastTap < 300) {
+      reset();
+    }
+    lastTap = now;
+  });
+  modal._resetImg = reset;
+}
+
+enableTouchZoom();
+
+function closeImageModal() {
+  const modal = document.getElementById("imgModal");
+  modal.classList.remove("open");
+  modal.setAttribute("aria-hidden", "true");
+}
+
 
 function fileToDataUrl(file) {
   return new Promise((resolve, reject) => {
