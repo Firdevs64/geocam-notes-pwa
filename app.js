@@ -310,9 +310,6 @@ document.querySelectorAll("img[data-full]").forEach(img => {
     });
   });
 
-
-}
-
 function getLocation() {
   return new Promise((resolve, reject) => {
     if (!navigator.geolocation) return reject(new Error("no geolocation"));
@@ -461,4 +458,3 @@ if ("serviceWorker" in navigator) {
     catch (e) { console.warn("SW register failed", e); }
   });
 }
-
