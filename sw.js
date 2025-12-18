@@ -35,6 +35,18 @@ self.addEventListener("fetch", (event) => {
 
   if (url.origin !== location.origin) return;
 
+  // 📸 Foto cache route
+  if (url.pathname.startsWith("/photos/")) {
+    event.respondWith(
+      caches.open("photos-v1").then(cache =>
+        cache.match(req).then(hit =>
+          hit || new Response("", { status: 404 })
+        )
+      )
+    );
+    return;
+  }
+
   if (req.headers.get("accept")?.includes("text/html")) {
     event.respondWith(networkFirst(req));
     return;
@@ -42,6 +54,8 @@ self.addEventListener("fetch", (event) => {
 
   event.respondWith(cacheFirst(req));
 });
+
+
 
 async function cacheFirst(req) {
   const cached = await caches.match(req);
@@ -64,5 +78,20 @@ async function networkFirst(req) {
     return cached || caches.match("./offline.html");
   }
 }
+self.addEventListener("message", async (event) => {
+  const data = event.data;
+  if (!data || data.type !== "CACHE_PHOTO") return;
+
+  const { id, file } = data;
+  if (!id || !file) return;
+
+  const cache = await caches.open("photos-v1");
+  const req = new Request(`/photos/${id}`);
+  const res = new Response(file, { headers: { "Content-Type": file.type } });
+
+  await cache.put(req, res);
+});
+
+
 
 
