@@ -36,7 +36,7 @@ self.addEventListener("fetch", (event) => {
   if (url.origin !== location.origin) return;
 
   // 📸 Foto cache route
-  if (url.pathname.startsWith("/photos/")) {
+  if (url.pathname.includes("/photos/")) {
     event.respondWith(
       caches.open("photos-v1").then(cache =>
         cache.match(req).then(hit =>
@@ -91,6 +91,7 @@ self.addEventListener("message", async (event) => {
 
   await cache.put(req, res);
 });
+
 
 
 
