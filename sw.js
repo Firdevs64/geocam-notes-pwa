@@ -86,13 +86,8 @@ self.addEventListener("message", async (event) => {
   if (!id || !file) return;
 
   const cache = await caches.open("photos-v1");
-  const req = new Request(`/photos/${id}`);
+  const req = new Request(`./photos/${id}`);
   const res = new Response(file, { headers: { "Content-Type": file.type } });
 
   await cache.put(req, res);
 });
-
-
-
-
-
