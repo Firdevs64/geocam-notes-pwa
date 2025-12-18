@@ -59,8 +59,7 @@ function HomeView() {
 
           <p>${escapeHtml(n.text || "")}</p>
 
-          ${n.imageDataUrl ? `<img alt="photo" src="${n.imageDataUrl}" class="noteImg" data-full="${n.imageDataUrl}" />` : ""}
-
+          ${n.photoId ? `<img alt="photo" src="/photos/${n.photoId}" class="noteImg" data-full="/photos/${n.photoId}" />` : ""}
 
           ${n.location ? `<p class="muted">📍 ${n.location.lat.toFixed(5)}, ${n.location.lng.toFixed(5)}</p>` : "<p class='muted'>📍 No location</p>"}
         </div>
@@ -138,6 +137,10 @@ render();
 let tempLocation = null;
 let tempImageDataUrl = null;
 
+let tempPhotoFile = null;
+let tempPhotoId = null;
+
+
 function bindEvents() {
   const goCapture = document.getElementById("goCapture");
   if (goCapture) goCapture.onclick = () => location.hash = "#/capture";
@@ -147,13 +150,17 @@ function bindEvents() {
 
   const photo = document.getElementById("photo");
   if (photo) {
-    photo.onchange = async () => {
-      const file = photo.files?.[0];
-      if (!file) return;
-      tempImageDataUrl = await fileToDataUrl(file);
-      document.getElementById("preview").innerHTML =
-        `<img alt="preview" src="${tempImageDataUrl}" style="width:100%;border-radius:12px;border:1px solid #334155" />`;
-    };
+    photo.onchange = () => {
+  const file = photo.files?.[0];
+  if (!file) return;
+
+  tempPhotoFile = file;
+  tempPhotoId = crypto.randomUUID ? crypto.randomUUID() : String(Date.now());
+
+  const url = URL.createObjectURL(file);
+  document.getElementById("preview").innerHTML =
+    `<img alt="preview" src="${url}" style="width:100%;border-radius:12px;border:1px solid #334155" />`;
+};
   }
 
   const getLoc = document.getElementById("getLoc");
@@ -167,22 +174,29 @@ function bindEvents() {
     }
   };
 
-  const saveBtn = document.getElementById("save");
-  if (saveBtn) saveBtn.onclick = () => {
-    const text = document.getElementById("noteText").value.trim();
-    const notes = loadNotes();
-    notes.unshift({
-      createdAt: Date.now(),
-      text,
-      imageDataUrl: tempImageDataUrl || null,
-      location: tempLocation || null
-    });
-   const ok = saveNotes(notes);
-   if (!ok) return;
+ notes.unshift({
+  createdAt: Date.now(),
+  text,
+  photoId: tempPhotoId || null,
+  location: tempLocation || null
+});
+const ok = saveNotes(notes);
+if (!ok) return;
+if (tempPhotoFile && tempPhotoId && navigator.serviceWorker?.controller) {
+  navigator.serviceWorker.controller.postMessage({
+    type: "CACHE_PHOTO",
+    id: tempPhotoId,
+    file: tempPhotoFile
+  });
+}
 
-   tempLocation = null;
-   tempImageDataUrl = null;
-   location.hash = "#/";
+tempLocation = null;
+tempImageDataUrl = null; 
+tempPhotoFile = null;
+tempPhotoId = null;
+
+location.hash = "#/";
+
 
   };
 
@@ -447,3 +461,4 @@ if ("serviceWorker" in navigator) {
     catch (e) { console.warn("SW register failed", e); }
   });
 }
+
