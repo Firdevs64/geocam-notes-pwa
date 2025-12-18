@@ -173,33 +173,36 @@ function bindEvents() {
       document.getElementById("locInfo").textContent = "Location could not be obtained (you may not have granted permission).";
     }
   };
+  const saveBtn = document.getElementById("save");
+if (saveBtn) saveBtn.onclick = () => {
+  const text = document.getElementById("noteText").value.trim();
+  const notes = loadNotes();
 
- notes.unshift({
-  createdAt: Date.now(),
-  text,
-  photoId: tempPhotoId || null,
-  location: tempLocation || null
-});
-const ok = saveNotes(notes);
-if (!ok) return;
-if (tempPhotoFile && tempPhotoId && navigator.serviceWorker?.controller) {
-  navigator.serviceWorker.controller.postMessage({
-    type: "CACHE_PHOTO",
-    id: tempPhotoId,
-    file: tempPhotoFile
+  notes.unshift({
+    createdAt: Date.now(),
+    text,
+    photoId: tempPhotoId || null,
+    location: tempLocation || null
   });
-}
 
-tempLocation = null;
-tempImageDataUrl = null; 
-tempPhotoFile = null;
-tempPhotoId = null;
+  const ok = saveNotes(notes);
+  if (!ok) return;
 
-location.hash = "#/";
+  if (tempPhotoFile && tempPhotoId && navigator.serviceWorker?.controller) {
+    navigator.serviceWorker.controller.postMessage({
+      type: "CACHE_PHOTO",
+      id: tempPhotoId,
+      file: tempPhotoFile
+    });
+  }
 
+  tempLocation = null;
+  tempImageDataUrl = null;
+  tempPhotoFile = null;
+  tempPhotoId = null;
 
-  };
-
+  location.hash = "#/";
+};
   const refreshLoc = document.getElementById("refreshLoc");
   if (refreshLoc) refreshLoc.onclick = async () => {
     const out = document.getElementById("liveLoc");
@@ -309,6 +312,7 @@ document.querySelectorAll("img[data-full]").forEach(img => {
       render();
     });
   });
+}
 
 function getLocation() {
   return new Promise((resolve, reject) => {
