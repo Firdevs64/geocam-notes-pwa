@@ -59,7 +59,7 @@ function HomeView() {
 
           <p>${escapeHtml(n.text || "")}</p>
 
-          ${n.photoId ? `<img alt="photo" src="/photos/${n.photoId}" class="noteImg" data-full="/photos/${n.photoId}" />` : ""}
+          ${n.photoId ? `<img alt="photo" src="./photos/${n.photoId}" class="noteImg" data-full="./photos/${n.photoId}" />` : ""}
 
           ${n.location ? `<p class="muted">📍 ${n.location.lat.toFixed(5)}, ${n.location.lng.toFixed(5)}</p>` : "<p class='muted'>📍 No location</p>"}
         </div>
@@ -462,3 +462,4 @@ if ("serviceWorker" in navigator) {
     catch (e) { console.warn("SW register failed", e); }
   });
 }
+
