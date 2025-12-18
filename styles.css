@@ -83,3 +83,56 @@ button.ghost:hover { filter: brightness(1.1); }
 .noteActions{display:flex; gap:8px;}
 button.ghost{width:auto;}
 button.danger{width:auto;}
+
+/* Image viewer modal */
+.imgModal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.75);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 16px;
+}
+
+.imgModal.open { display: flex; }
+
+.imgModal img{
+  max-width: 95vw;
+  max-height: 80vh;
+  border-radius: 14px;
+  border: 1px solid #334155;
+  transform: scale(1);
+  transition: transform .15s ease;
+  touch-action: none; 
+  user-select: none;
+
+}
+
+.imgModalBar{
+  position: fixed;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+}
+
+.imgModalBar button{
+  width: auto;
+  padding: 10px 14px;
+}
+
+@media (max-width: 700px) {
+  .tabs {
+    position: static;  
+    top: auto;
+    padding-top: 8px;
+  }
+
+  .topbar {
+    position: static;   
+    top: auto;
+  }
+}
