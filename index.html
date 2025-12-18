@@ -4,11 +4,14 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="theme-color" content="#111827" />
+
   <link rel="manifest" href="./manifest.json" />
   <link rel="stylesheet" href="./styles.css" />
+
   <title>GeoCam Notes</title>
 </head>
 <body>
+
 <header class="topbar">
   <div class="brand">
     <img class="brandIcon" src="./icons/icon-192.png" alt="GeoCam" />
@@ -19,20 +22,26 @@
   </div>
 
   <div class="topActions">
-    <button id="quickAdd" class="btn primary">＋ New Registration</button>
     <span id="netBadge" class="badge">Online</span>
   </div>
 </header>
 
+<nav class="tabs">
+  <a href="#/" data-link>Home</a>
+  <a href="#/capture" data-link>Capture</a>
+  <a href="#/location" data-link>Location</a>
+</nav>
 
-  <nav class="tabs">
-    <a href="#/" data-link>Home</a>
-    <a href="#/capture" data-link>Capture</a>
-    <a href="#/location" data-link>Location</a>
-  </nav>
+<main id="view"></main>
 
-  <main id="view"></main>
-
-  <script src="./app.js"></script>
+<div id="imgModal" class="imgModal" aria-hidden="true">
+  <img id="imgModalPic" alt="Full image preview" />
+  <div class="imgModalBar">
+    <button id="zoomOut">−</button>
+    <button id="zoomIn">＋</button>
+    <button id="closeImg">Close</button>
+  </div>
+</div>
+<script src="./app.js"></script>
 </body>
 </html>
