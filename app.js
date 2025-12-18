@@ -1,9 +1,5 @@
-/* ===========================
-   ONLINE / OFFLINE BADGE
-=========================== */
 const netBadge = document.getElementById("netBadge");
 function updateNet() {
-  if (!netBadge) return;
   const online = navigator.onLine;
   netBadge.textContent = online ? "Online" : "Offline";
   netBadge.classList.toggle("off", !online);
@@ -12,44 +8,27 @@ window.addEventListener("online", updateNet);
 window.addEventListener("offline", updateNet);
 updateNet();
 
-/* ===========================
-   STORAGE (SAFE)
-=========================== */
 const KEY = "geocam_notes_v1";
-
-function loadNotes() {
+const loadNotes = () => {
   try {
-    const raw = localStorage.getItem(KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch (e) {
-    console.warn("loadNotes parse error:", e);
-    localStorage.removeItem(KEY);
+    return JSON.parse(localStorage.getItem(KEY) || "[]");
+  } catch {
     return [];
   }
-}
+};
 
-function saveNotes(notes) {
+const saveNotes = (notes) => {
   try {
     localStorage.setItem(KEY, JSON.stringify(notes));
-    const test = localStorage.getItem(KEY);
-    if (!test) throw new Error("Write failed");
     return true;
   } catch (e) {
-    console.error("saveNotes failed:", e);
-    alert(
-      "Kaydedilemedi ❌\n" +
-      "Sebep: " + (e?.name || "") + " " + (e?.message || e) +
-      "\n\nFotoğraf çok büyük olabilir. Daha küçük bir foto seçmeyi dene."
-    );
+    alert("Kaydedilemedi ❌ Fotoğraf çok büyük olabilir.");
+    console.error(e);
     return false;
   }
-}
+};
 
-/* ===========================
-   ROUTER / VIEW
-=========================== */
+
 const view = document.getElementById("view");
 
 function HomeView() {
@@ -66,35 +45,26 @@ function HomeView() {
 
     <section class="card">
       <h3>Records</h3>
-      ${
-        notes.length === 0
-          ? "<p>No records yet.</p>"
-          : notes.map((n, i) => `
-            <div class="note card" style="background:#0f172a">
-              <div class="noteHead">
-                <b>${new Date(n.createdAt).toLocaleString()}</b>
-                <div class="noteActions">
-                  <button class="btn" data-edit="${i}" title="Edit">Edit</button>
-                  <button class="btn danger" data-del="${i}" title="Delete">Delete</button>
-                </div>
-              </div>
+      ${notes.length === 0 ? "<p>No records yet.</p>" : notes.map((n, i) => `
+        <div class="note card" style="background:#0f172a">
+          <div class="noteHead">
+            <b>${new Date(n.createdAt).toLocaleString()}</b>
+        <div class="noteActions">
+            <button class="btn" data-edit="${i}" title="Edit">Edit</button>
+            <button class="btn danger" data-del="${i}" title="Delete">Delete</button>
+        </div>
 
-              <p>${escapeHtml(n.text || "")}</p>
 
-              ${
-                n.imageDataUrl
-                  ? `<img alt="photo" src="${n.imageDataUrl}" class="noteImg" data-full="${n.imageDataUrl}" />`
-                  : ""
-              }
+          </div>
 
-              ${
-                n.location
-                  ? `<p class="muted">📍 ${Number(n.location.lat).toFixed(5)}, ${Number(n.location.lng).toFixed(5)}</p>`
-                  : "<p class='muted'>📍 No location</p>"
-              }
-            </div>
-          `).join("")
-      }
+          <p>${escapeHtml(n.text || "")}</p>
+
+          ${n.imageDataUrl ? `<img alt="photo" src="${n.imageDataUrl}" class="noteImg" data-full="${n.imageDataUrl}" />` : ""}
+
+
+          ${n.location ? `<p class="muted">📍 ${n.location.lat.toFixed(5)}, ${n.location.lng.toFixed(5)}</p>` : "<p class='muted'>📍 No location</p>"}
+        </div>
+      `).join("")}
     </section>
   `;
 }
@@ -106,16 +76,17 @@ function CaptureView() {
       <p>Native features: Camera (photo), Location (GPS), Microphone (speech-to-text).</p>
 
       <label>Photo (can open camera)</label>
-      <input id="photo" type="file" accept="image/*" capture="environment"/>
+      <input id="photo" type="file" accept="image/*"/>
 
       <label style="margin-top:10px;display:block">Note</label>
       <textarea id="noteText" rows="4" placeholder="What are we saving today?"></textarea>
 
       <div class="row" style="margin-top:10px">
-        <button class="half" id="micBtn">🎙 Write by speaking</button>
-        <button class="half" id="stopMicBtn" disabled>⏹ Stop</button>
-      </div>
-      <p id="micInfo" class="muted"></p>
+  <button class="half" id="micBtn">🎙 Write by speaking</button>
+  <button class="half" id="stopMicBtn" disabled>⏹ Stop</button>
+</div>
+<p id="micInfo" class="muted"></p>
+
 
       <div class="row" style="margin-top:10px">
         <button class="half" id="getLoc">Get Location</button>
@@ -151,8 +122,6 @@ function setActiveTab() {
 }
 
 function render() {
-  if (!view) return;
-
   const hash = location.hash || "#/";
   setActiveTab();
 
@@ -166,103 +135,77 @@ function render() {
 window.addEventListener("hashchange", render);
 render();
 
-/* ===========================
-   STATE
-=========================== */
 let tempLocation = null;
 let tempImageDataUrl = null;
 
-/* ===========================
-   EVENTS
-=========================== */
 function bindEvents() {
   const goCapture = document.getElementById("goCapture");
-  if (goCapture) goCapture.onclick = () => (location.hash = "#/capture");
+  if (goCapture) goCapture.onclick = () => location.hash = "#/capture";
 
   const goLoc = document.getElementById("goLoc");
-  if (goLoc) goLoc.onclick = () => (location.hash = "#/location");
+  if (goLoc) goLoc.onclick = () => location.hash = "#/location";
 
   const photo = document.getElementById("photo");
   if (photo) {
     photo.onchange = async () => {
       const file = photo.files?.[0];
       if (!file) return;
-
-      // Base64 + aggressive compress (localStorage friendly)
       tempImageDataUrl = await fileToDataUrl(file);
-
-      const preview = document.getElementById("preview");
-      if (preview) {
-        preview.innerHTML = `
-          <img alt="preview" src="${tempImageDataUrl}"
-               style="width:100%;border-radius:12px;border:1px solid #334155" />
-        `;
-      }
+      document.getElementById("preview").innerHTML =
+        `<img alt="preview" src="${tempImageDataUrl}" style="width:100%;border-radius:12px;border:1px solid #334155" />`;
     };
   }
 
   const getLoc = document.getElementById("getLoc");
-  if (getLoc) {
-    getLoc.onclick = async () => {
-      const locInfo = document.getElementById("locInfo");
-      try {
-        tempLocation = await getLocation();
-        if (locInfo) {
-          locInfo.textContent = `📍 ${tempLocation.lat.toFixed(5)}, ${tempLocation.lng.toFixed(5)}`;
-        }
-      } catch {
-        if (locInfo) {
-          locInfo.textContent =
-            "Location could not be obtained (you may not have granted permission).";
-        }
-      }
-    };
-  }
+  if (getLoc) getLoc.onclick = async () => {
+    try {
+      tempLocation = await getLocation();
+      document.getElementById("locInfo").textContent =
+        `📍 ${tempLocation.lat.toFixed(5)}, ${tempLocation.lng.toFixed(5)}`;
+    } catch {
+      document.getElementById("locInfo").textContent = "Location could not be obtained (you may not have granted permission).";
+    }
+  };
 
   const saveBtn = document.getElementById("save");
-  if (saveBtn) {
-    saveBtn.onclick = () => {
-      const text = (document.getElementById("noteText")?.value || "").trim();
-      const notes = loadNotes();
+  if (saveBtn) saveBtn.onclick = () => {
+    const text = document.getElementById("noteText").value.trim();
+    const notes = loadNotes();
+    notes.unshift({
+      createdAt: Date.now(),
+      text,
+      imageDataUrl: tempImageDataUrl || null,
+      location: tempLocation || null
+    });
+   const ok = saveNotes(notes);
+   if (!ok) return;
 
-      notes.unshift({
-        createdAt: Date.now(),
-        text,
-        imageDataUrl: tempImageDataUrl || null,
-        location: tempLocation || null
-      });
+   tempLocation = null;
+   tempImageDataUrl = null;
+   location.hash = "#/";
 
-      const ok = saveNotes(notes);
-      if (!ok) return;
-
-      tempLocation = null;
-      tempImageDataUrl = null;
-      location.hash = "#/";
-    };
-  }
+  };
 
   const refreshLoc = document.getElementById("refreshLoc");
-  if (refreshLoc) {
-    refreshLoc.onclick = async () => {
-      const out = document.getElementById("liveLoc");
-      if (out) out.textContent = "Obtaining location...";
-      try {
-        const loc = await getLocation();
-        if (out) out.textContent = `📍 ${loc.lat.toFixed(5)}, ${loc.lng.toFixed(5)}`;
-      } catch {
-        if (out) out.textContent = "Location could not be obtained.";
-      }
-    };
-  }
-
+  if (refreshLoc) refreshLoc.onclick = async () => {
+    const out = document.getElementById("liveLoc");
+    out.textContent = "Obtaining location...";
+    try {
+      const loc = await getLocation();
+      out.textContent = `📍 ${loc.lat.toFixed(5)}, ${loc.lng.toFixed(5)}`;
+    } catch {
+      out.textContent = "Location could not be obtained.";
+    }
+  };
   // Open image in modal (Home)
-  document.querySelectorAll("img[data-full]").forEach(img => {
-    img.addEventListener("click", () => {
-      openImageModal(img.getAttribute("data-full"));
-    });
+document.querySelectorAll("img[data-full]").forEach(img => {
+  img.addEventListener("click", () => {
+    openImageModal(img.getAttribute("data-full"));
   });
+});
 
-  // Speech-to-text (Microphone)
+
+    // Speech-to-text (Microphone) 
   const micBtn = document.getElementById("micBtn");
   const stopMicBtn = document.getElementById("stopMicBtn");
   const micInfo = document.getElementById("micInfo");
@@ -321,7 +264,8 @@ function bindEvents() {
     }
   }
 
-  // Delete buttons (Home)
+
+    // Delete buttons (Home)
   document.querySelectorAll("[data-del]").forEach(btn => {
     btn.addEventListener("click", () => {
       const i = Number(btn.getAttribute("data-del"));
@@ -331,11 +275,11 @@ function bindEvents() {
       const notes = loadNotes();
       notes.splice(i, 1);
       saveNotes(notes);
-      render();
+      render(); 
     });
   });
 
-  // Edit buttons (Home)
+    // Edit buttons (Home)
   document.querySelectorAll("[data-edit]").forEach(btn => {
     btn.addEventListener("click", () => {
       const i = Number(btn.getAttribute("data-edit"));
@@ -343,7 +287,7 @@ function bindEvents() {
       const n = notes[i];
 
       const newText = prompt("Edit note:", n?.text ?? "");
-      if (newText === null) return;
+      if (newText === null) return; 
 
       n.text = newText.trim();
       notes[i] = n;
@@ -351,11 +295,10 @@ function bindEvents() {
       render();
     });
   });
+
+
 }
 
-/* ===========================
-   GEOLOCATION
-=========================== */
 function getLocation() {
   return new Promise((resolve, reject) => {
     if (!navigator.geolocation) return reject(new Error("no geolocation"));
@@ -367,15 +310,7 @@ function getLocation() {
   });
 }
 
-/* ===========================
-   IMAGE MODAL + ZOOM
-=========================== */
 let zoom = 1;
-let panX = 0, panY = 0, scale = 1;
-let startX = 0, startY = 0;
-let startPanX = 0, startPanY = 0;
-let startDist = 0, startScale = 1;
-let isPanning = false;
 
 function openImageModal(src) {
   const modal = document.getElementById("imgModal");
@@ -384,13 +319,9 @@ function openImageModal(src) {
   const zout = document.getElementById("zoomOut");
   const close = document.getElementById("closeImg");
 
-  if (!modal || !pic) return;
-
   zoom = 1;
   panX = 0;
   panY = 0;
-  scale = 1;
-
   pic.style.transform = `scale(${zoom})`;
   pic.src = src;
 
@@ -402,13 +333,20 @@ function openImageModal(src) {
     pic.style.transform = `scale(${zoom})`;
   };
 
-  if (zin) zin.onclick = (e) => { e.stopPropagation(); zoom += 0.25; applyZoom(); };
-  if (zout) zout.onclick = (e) => { e.stopPropagation(); zoom -= 0.25; applyZoom(); };
-  if (close) close.onclick = (e) => { e.stopPropagation(); closeImageModal(); };
+  zin.onclick = (e) => { e.stopPropagation(); zoom += 0.25; applyZoom(); };
+  zout.onclick = (e) => { e.stopPropagation(); zoom -= 0.25; applyZoom(); };
+  close.onclick = (e) => { e.stopPropagation(); closeImageModal(); };
+
 
   modal.onclick = () => closeImageModal();
-  pic.onclick = (e) => e.stopPropagation();
+  pic.onclick = (e) => e.stopPropagation(); 
 }
+
+let panX = 0, panY = 0, scale = 1;
+let startX = 0, startY = 0;
+let startPanX = 0, startPanY = 0;
+let startDist = 0, startScale = 1;
+let isPanning = false;
 
 function applyTransform(img) {
   img.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
@@ -421,7 +359,7 @@ function dist(t1, t2) {
 }
 
 function clampScale(v) {
-  return Math.max(1, Math.min(4, v));
+  return Math.max(1, Math.min(4, v)); 
 }
 
 function enableTouchZoom() {
@@ -473,65 +411,36 @@ function enableTouchZoom() {
   let lastTap = 0;
   img.addEventListener("click", () => {
     const now = Date.now();
-    if (now - lastTap < 300) reset();
+    if (now - lastTap < 300) {
+      reset();
+    }
     lastTap = now;
   });
-
   modal._resetImg = reset;
 }
+
 enableTouchZoom();
 
 function closeImageModal() {
   const modal = document.getElementById("imgModal");
-  if (!modal) return;
   modal.classList.remove("open");
   modal.setAttribute("aria-hidden", "true");
 }
 
-/* ===========================
-   IMAGE -> DATAURL (AGGRESSIVE COMPRESS)
-=========================== */
-async function fileToDataUrl(file) {
-  const img = await new Promise((res, rej) => {
-    const i = new Image();
-    i.onload = () => res(i);
-    i.onerror = rej;
-    i.src = URL.createObjectURL(file);
+
+function fileToDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(r.result);
+    r.onerror = reject;
+    r.readAsDataURL(file);
   });
-
-  // Aggressive settings so it fits in localStorage more often
-  const maxW = 360;
-  const quality = 0.45;
-
-  const ratio = Math.min(1, maxW / img.width);
-  const w = Math.round(img.width * ratio);
-  const h = Math.round(img.height * ratio);
-
-  const canvas = document.createElement("canvas");
-  canvas.width = w;
-  canvas.height = h;
-  canvas.getContext("2d").drawImage(img, 0, 0, w, h);
-
-  URL.revokeObjectURL(img.src);
-  return canvas.toDataURL("image/jpeg", quality);
 }
 
-/* ===========================
-   ESCAPE
-=========================== */
 function escapeHtml(s) {
-  return String(s).replace(/[&<>"']/g, (c) => ({
-    "&":"&amp;",
-    "<":"&lt;",
-    ">":"&gt;",
-    '"':"&quot;",
-    "'":"&#039;"
-  }[c]));
+  return s.replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;" }[c]));
 }
 
-/* ===========================
-   SERVICE WORKER
-=========================== */
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", async () => {
     try { await navigator.serviceWorker.register("./sw.js"); }
