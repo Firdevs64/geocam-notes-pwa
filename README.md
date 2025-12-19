@@ -8,7 +8,7 @@ TECHNOLOGIES USED
 🔹Vanilla JavaScript
 🔹Service Workers
 🔹Web APIs (Camera, Geolocation, Microphone)
-No external JavaScript libraries or frameworks are used for the PWA logic.
+No external JavaScript frameworks or libraries are used for Service Worker logic, caching strategies, or offline handling.
 
 INSTALLABLE APPLICATION (PWA)
 The application includes a Web App Manifest that defines:
@@ -17,7 +17,7 @@ The application includes a Web App Manifest that defines:
 🔹Theme and background colors
 🔹Start URL
 🔹Standalone display mode
-Thanks to HTTPS hosting and the manifest configuration, the application can be installed on mobile devices and used like a native app.
+Thanks to HTTPS hosting via GitHub Pages and proper manifest configuration, the application can be installed on mobile devices and used similarly to a native application.
 
 NATIVE DEVICE FEATURES
 The application uses the following native device features:
@@ -25,6 +25,7 @@ The application uses the following native device features:
  Camera
 🔹Implemented using an HTML file input with camera capture support.
 🔹Allows users to take photos directly on mobile devices.
+🔹Photos are cached using the Service Worker Cache API instead of localStorage to avoid storage limitations.
  
  Geolocation
 🔹Implemented using the Geolocation API.
@@ -37,8 +38,9 @@ The application uses the following native device features:
 OFFLINE FUNCTIONALITY
 Offline support is implemented using a Service Worker and the Cache API.
 🔹Static assets are cached during the service worker installation.
-🔹Previously visited pages and data remain accessible without an internet connection.
+🔹Dynamic content and photos are cached at runtime.
 🔹The application detects network status changes and informs the user when they are offline.
+🔹Cached photos remain accessible even when the device is offline.
 
 VIEW AND APPLICATION FLOW
 The application consists of three main views with a consistent and intuitive navigation flow:
@@ -66,7 +68,8 @@ RESPONSIVENESS AND PERFORMANCE
 CACHING STRATEGY
 🔹Static assets are cached during the service worker installation phase.
 🔹The cache-first strategy is used for offline reliability.
-🔹Cached resources allow uninterrupted usage when the network is unavailable.
+🔹Dynamic content is cached at runtime.
+🔹Photos are stored in a dedicated cache (photos-v1) and served via the Service Worker.
 
 HOSTING AND HTTPS
 The application is hosted using GitHub Pages, which provides:
