@@ -1,161 +1,123 @@
-📍 GeoCam Notes – PWA
+# 📍 GeoCam Notes – PWA
 
-GeoCam Notes, HTML, CSS ve Vanilla JavaScript kullanılarak geliştirilmiş, yüklenebilir (installable) bir Progressive Web Application (PWA)’dır.
-Uygulama; offline çalışma, native cihaz özelliklerine erişim, performans ve responsive tasarım gibi temel PWA kavramlarını pratik olarak göstermeyi amaçlar.
+GeoCam Notes is an installable **Progressive Web Application (PWA)** developed using **HTML, CSS, and Vanilla JavaScript**.  
+The application demonstrates core PWA concepts such as **offline support**, **native device feature access**, **responsiveness**, and **performance best practices**.
 
-👉 Live Demo:
+👉 **Live Demo:**  
 https://firdevs64.github.io/geocam-notes-pwa/
 
-🚀 Temel Özellikler
+---
 
-📸 Fotoğraf çekme ve saklama
+## 🚀 Key Features
 
-📍 Konum (GPS) kaydı
+- 📸 Capture photos using the device camera  
+- 📍 Save GPS location data  
+- 🎤 Create notes using speech-to-text  
+- 🌐 Full offline support  
+- 📱 Installable as a PWA on mobile devices  
+- ⚡ Fast and lightweight performance  
 
-🎤 Sesli not (Speech-to-Text)
+---
 
-🌐 Offline kullanım desteği
+## 🛠️ Technologies Used
 
-📱 Mobil cihazlara yüklenebilir PWA
+- HTML5  
+- CSS3  
+- Vanilla JavaScript  
+- Service Workers  
+- Web APIs  
+  - Camera API  
+  - Geolocation API  
+  - Web Speech API (Speech-to-Text)  
 
-⚡ Hızlı ve performans odaklı yapı
+> No external JavaScript frameworks or libraries are used for Service Worker logic, caching strategies, or offline handling.
 
-🛠️ Kullanılan Teknolojiler
+---
 
-HTML5
+## 📦 Progressive Web App (PWA)
 
-CSS3
+The application includes a **Web App Manifest** that defines:
 
-Vanilla JavaScript
+- Application name  
+- Icons  
+- Theme and background colors  
+- Start URL  
+- Standalone display mode  
 
-Service Workers
+Thanks to **HTTPS hosting via GitHub Pages** and proper manifest configuration, the application can be installed on mobile devices and used similarly to a native application.
 
-Web APIs
+---
 
-Camera API
+## 📱 Native Device Features
 
-Geolocation API
+### 📸 Camera
+- Implemented using an HTML file input with camera capture support  
+- Allows users to take photos directly on mobile devices  
+- Photos are stored using the **Service Worker Cache API** instead of localStorage to avoid storage limitations  
 
-Web Speech API (Speech-to-Text)
+### 📍 Geolocation
+- Implemented using the Geolocation API  
+- GPS coordinates are captured and stored with each record  
 
-⚠️ Not:
-Service Worker, cache yönetimi ve offline mekanizmaları için herhangi bir harici JavaScript kütüphanesi veya framework kullanılmamıştır.
+### 🎤 Microphone (Speech-to-Text)
+- Implemented using the Web Speech API  
+- Users can dictate notes using voice input  
+- Speech is automatically converted into text  
 
-📦 PWA (Installable Application)
+---
 
-Uygulama bir Web App Manifest içerir ve aşağıdaki özellikleri tanımlar:
+## 🌐 Offline Functionality
 
-Uygulama adı
+Offline support is implemented using a **Service Worker** and the **Cache API**:
 
-İkonlar
+- Static assets are cached during the service worker installation phase  
+- Dynamic content is cached at runtime  
+- The application detects network status changes and informs the user  
+- Cached photos remain accessible even when the device is offline  
 
-Tema ve arka plan renkleri
+---
 
-Start URL
+## 🧭 Application Flow
 
-Standalone görüntüleme modu
+The application consists of three main views with a clear and intuitive navigation flow:
 
-GitHub Pages üzerinden HTTPS ile yayınlandığı için uygulama:
+### 🏠 Home View
+- Displays saved records  
+- Shows online/offline status  
+- Provides quick access to core features  
 
-Mobil cihazlara yüklenebilir
+### 📸 Capture View
+- Take photos  
+- Add text or voice-based notes  
+- Capture and save location data  
 
-Native uygulama benzeri bir deneyim sunar
+### 📍 Location View
+- Displays the most recently saved location  
+- Allows live location preview without saving  
 
-📱 Native Cihaz Özellikleri
-📸 Kamera
+---
 
-HTML file input ile kamera yakalama desteği
+## ⚡ Responsiveness & Performance
 
-Mobil cihazlarda doğrudan fotoğraf çekme
+- Fully responsive UI across different screen sizes  
+- Fast loading and smooth interaction  
+- PWA compliance and performance can be evaluated using **Lighthouse**  
 
-Fotoğraflar localStorage yerine Cache API ile saklanır
-(storage limit problemleri önlenir)
+---
 
-📍 Geolocation
+## 🗂️ Caching Strategy
 
-Geolocation API kullanılır
+- Static assets are cached during service worker installation  
+- Cache-first strategy is used for offline reliability  
+- Dynamic content is cached at runtime  
+- Photos are stored in a dedicated cache (`photos-v1`) and served via the service worker  
 
-Her kayıtla birlikte GPS koordinatları saklanır
+---
 
-🎤 Mikrofon (Speech-to-Text)
+## 🌍 Hosting & HTTPS
 
-Web Speech API kullanılır
+The application is hosted on **GitHub Pages**, providing:
 
-Kullanıcılar notlarını sesli olarak dikte edebilir
-
-Ses otomatik olarak metne dönüştürülür
-
-🌐 Offline Desteği
-
-Offline çalışma Service Worker + Cache API ile sağlanır:
-
-Statik dosyalar install aşamasında cache’lenir
-
-Dinamik içerikler runtime sırasında cache’e alınır
-
-Ağ durumu (online / offline) algılanır ve kullanıcı bilgilendirilir
-
-Offline iken:
-
-Önceden çekilmiş fotoğraflar erişilebilir
-
-Uygulama çalışmaya devam eder
-
-🧭 Uygulama Akışı (Views)
-
-Uygulama üç ana ekrandan oluşur:
-
-🏠 Home View
-
-Kayıtlı notları listeler
-
-Online / offline durumunu gösterir
-
-Temel özelliklere hızlı erişim sağlar
-
-📸 Capture View
-
-Fotoğraf çekme
-
-Metin veya sesli not ekleme
-
-Konum bilgisi kaydetme
-
-📍 Location View
-
-En son kaydedilen konumu gösterir
-
-Kaydetmeden canlı konum önizleme imkanı sunar
-
-Tüm ekranlar arasında sade ve sezgisel bir gezinme akışı bulunur.
-
-⚡ Responsive Tasarım & Performans
-
-Tüm ekran boyutlarına uyumlu (mobile-first)
-
-Hızlı yükleme ve akıcı kullanım
-
-PWA uyumluluğu ve performans:
-
-Lighthouse ile ölçümlenebilir
-
-🗂️ Cache Stratejisi
-
-Statik dosyalar → install aşamasında cache
-
-Cache-First stratejisi → offline güvenilirlik
-
-Dinamik içerikler → runtime cache
-
-Fotoğraflar → ayrı bir cache içinde tutulur
-(photos-v1)
-
-🌍 Hosting & HTTPS
-
-Uygulama GitHub Pages üzerinde barındırılmaktadır:
-
-🔒 HTTPS desteği
-
-🌐 Herkese açık erişim
-
-📲 PWA yükleme desteği
+- Secure HTTPS connection  
+- Public accessibility  
+- PWA installation support  
