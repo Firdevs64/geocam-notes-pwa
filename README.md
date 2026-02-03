@@ -1,94 +1,161 @@
-# geocam-notes-pwa
-GeoCam Notes is an installable Progressive Web Application (PWA) developed using HTML, CSS, and Vanilla JavaScript.
-The application is designed to demonstrate core PWA concepts such as offline support, use of native device features, responsiveness, and performance best practices.
+📍 GeoCam Notes – PWA
 
-TECHNOLOGIES USED
-🔹HTML5
-🔹CSS3
-🔹Vanilla JavaScript
-🔹Service Workers
-🔹Web APIs (Camera, Geolocation, Microphone)
-No external JavaScript frameworks or libraries are used for Service Worker logic, caching strategies, or offline handling.
+GeoCam Notes, HTML, CSS ve Vanilla JavaScript kullanılarak geliştirilmiş, yüklenebilir (installable) bir Progressive Web Application (PWA)’dır.
+Uygulama; offline çalışma, native cihaz özelliklerine erişim, performans ve responsive tasarım gibi temel PWA kavramlarını pratik olarak göstermeyi amaçlar.
 
-INSTALLABLE APPLICATION (PWA)
-The application includes a Web App Manifest that defines:
-🔹Application name
-🔹Icons
-🔹Theme and background colors
-🔹Start URL
-🔹Standalone display mode
-Thanks to HTTPS hosting via GitHub Pages and proper manifest configuration, the application can be installed on mobile devices and used similarly to a native application.
-
-NATIVE DEVICE FEATURES
-The application uses the following native device features:
-
- Camera
-🔹Implemented using an HTML file input with camera capture support.
-🔹Allows users to take photos directly on mobile devices.
-🔹Photos are cached using the Service Worker Cache API instead of localStorage to avoid storage limitations.
- 
- Geolocation
-🔹Implemented using the Geolocation API.
-🔹GPS coordinates are captured and stored with each record.
-
- Microphone (Speech-to-Text)
-🔹Implemented using the Web Speech API.
-🔹Users can dictate notes using voice input, which is automatically converted into text.
-
-OFFLINE FUNCTIONALITY
-Offline support is implemented using a Service Worker and the Cache API.
-🔹Static assets are cached during the service worker installation.
-🔹Dynamic content and photos are cached at runtime.
-🔹The application detects network status changes and informs the user when they are offline.
-🔹Cached photos remain accessible even when the device is offline.
-
-VIEW AND APPLICATION FLOW
-The application consists of three main views with a consistent and intuitive navigation flow:
-
-Home View
-🔹Displays saved records
-🔹Shows online/offline status
-🔹Provides quick access to core features
-
-Capture View
-🔹Allows users to take photos
-🔹Add text or voice-based notes
-🔹Capture location data
-
-Location View
-🔹Displays the most recently saved location
-🔹Allows live location preview without saving
-Each view has a clearly defined purpose and smooth transitions.
-
-RESPONSIVENESS AND PERFORMANCE
-🔹The user interface is fully responsive and adapts to different screen sizes.
-🔹The application loads quickly and runs smoothly.
-🔹Performance and PWA compliance can be evaluated using Lighthouse.
-
-CACHING STRATEGY
-🔹Static assets are cached during the service worker installation phase.
-🔹The cache-first strategy is used for offline reliability.
-🔹Dynamic content is cached at runtime.
-🔹Photos are stored in a dedicated cache (photos-v1) and served via the Service Worker.
-
-HOSTING AND HTTPS
-The application is hosted using GitHub Pages, which provides:
-🔹Secure HTTPS connection
-🔹Public accessibility
-🔹PWA installation support
-
-Live Demo:
+👉 Live Demo:
 https://firdevs64.github.io/geocam-notes-pwa/
 
+🚀 Temel Özellikler
 
+📸 Fotoğraf çekme ve saklama
 
+📍 Konum (GPS) kaydı
 
+🎤 Sesli not (Speech-to-Text)
 
+🌐 Offline kullanım desteği
 
+📱 Mobil cihazlara yüklenebilir PWA
 
+⚡ Hızlı ve performans odaklı yapı
 
+🛠️ Kullanılan Teknolojiler
 
+HTML5
 
+CSS3
 
+Vanilla JavaScript
 
+Service Workers
 
+Web APIs
+
+Camera API
+
+Geolocation API
+
+Web Speech API (Speech-to-Text)
+
+⚠️ Not:
+Service Worker, cache yönetimi ve offline mekanizmaları için herhangi bir harici JavaScript kütüphanesi veya framework kullanılmamıştır.
+
+📦 PWA (Installable Application)
+
+Uygulama bir Web App Manifest içerir ve aşağıdaki özellikleri tanımlar:
+
+Uygulama adı
+
+İkonlar
+
+Tema ve arka plan renkleri
+
+Start URL
+
+Standalone görüntüleme modu
+
+GitHub Pages üzerinden HTTPS ile yayınlandığı için uygulama:
+
+Mobil cihazlara yüklenebilir
+
+Native uygulama benzeri bir deneyim sunar
+
+📱 Native Cihaz Özellikleri
+📸 Kamera
+
+HTML file input ile kamera yakalama desteği
+
+Mobil cihazlarda doğrudan fotoğraf çekme
+
+Fotoğraflar localStorage yerine Cache API ile saklanır
+(storage limit problemleri önlenir)
+
+📍 Geolocation
+
+Geolocation API kullanılır
+
+Her kayıtla birlikte GPS koordinatları saklanır
+
+🎤 Mikrofon (Speech-to-Text)
+
+Web Speech API kullanılır
+
+Kullanıcılar notlarını sesli olarak dikte edebilir
+
+Ses otomatik olarak metne dönüştürülür
+
+🌐 Offline Desteği
+
+Offline çalışma Service Worker + Cache API ile sağlanır:
+
+Statik dosyalar install aşamasında cache’lenir
+
+Dinamik içerikler runtime sırasında cache’e alınır
+
+Ağ durumu (online / offline) algılanır ve kullanıcı bilgilendirilir
+
+Offline iken:
+
+Önceden çekilmiş fotoğraflar erişilebilir
+
+Uygulama çalışmaya devam eder
+
+🧭 Uygulama Akışı (Views)
+
+Uygulama üç ana ekrandan oluşur:
+
+🏠 Home View
+
+Kayıtlı notları listeler
+
+Online / offline durumunu gösterir
+
+Temel özelliklere hızlı erişim sağlar
+
+📸 Capture View
+
+Fotoğraf çekme
+
+Metin veya sesli not ekleme
+
+Konum bilgisi kaydetme
+
+📍 Location View
+
+En son kaydedilen konumu gösterir
+
+Kaydetmeden canlı konum önizleme imkanı sunar
+
+Tüm ekranlar arasında sade ve sezgisel bir gezinme akışı bulunur.
+
+⚡ Responsive Tasarım & Performans
+
+Tüm ekran boyutlarına uyumlu (mobile-first)
+
+Hızlı yükleme ve akıcı kullanım
+
+PWA uyumluluğu ve performans:
+
+Lighthouse ile ölçümlenebilir
+
+🗂️ Cache Stratejisi
+
+Statik dosyalar → install aşamasında cache
+
+Cache-First stratejisi → offline güvenilirlik
+
+Dinamik içerikler → runtime cache
+
+Fotoğraflar → ayrı bir cache içinde tutulur
+(photos-v1)
+
+🌍 Hosting & HTTPS
+
+Uygulama GitHub Pages üzerinde barındırılmaktadır:
+
+🔒 HTTPS desteği
+
+🌐 Herkese açık erişim
+
+📲 PWA yükleme desteği
